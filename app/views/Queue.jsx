@@ -67,8 +67,15 @@ const NoSessions = function(props) {
 const EnterQueue = function(props) {
 
   const handleEnterClick = function(event) {
+
     event.preventDefault();
+
+    if ($('#callURL').val() && ($('#callURL').val().indexOf('https://') !== 0 && $('#callURL').val().indexOf('http://') !== 0)) {
+      alert(props.intl.formatMessage({id: 'queue-wrong-call-url'}));
+      return;
+    }
     clickHandler(event, props, null, 'queue-join-failed', true);
+
   };
 
   // **********************************************************************************************
@@ -189,23 +196,14 @@ const EnterQueue = function(props) {
         <hr/>
 
         <div className="form-group">
-          <label htmlFor="row" className="col-sm-3 control-label"><FormattedMessage id="queue-my-row"/></label>
+          <label htmlFor="callURL" className="col-sm-3 control-label"><FormattedMessage id="queue-call-url"/></label>
           <div className="col-sm-6">
-            <select name="row" defaultValue={props.user.previousRow}>
-              <option value="1">1</option>
-              <option value="2">2</option>
-              <option value="3">3</option>
-              <option value="4">4</option>
-              <option value="5">5</option>
-              <option value="6">6</option>
-              <option value="7">7</option>
-              <option value="8">8</option>
-              <option value="9">9</option>
-              <option value="10">10</option>
-            </select>
-            <p className="help-block small"><FormattedMessage id="queue-row-direction-help"/></p>
+            <input type="text" className="form-control" name="call_url" id="callURL"/>
+            <p className="help-block small"><FormattedMessage id="queue-call-url-help"/></p>
           </div>
         </div>
+
+        <input type="hidden" name="row" value="1"></input>
 
         <LanguageSelection languages={props.selectedSession.language} previousLanguage={props.user.previousLanguage}/>
 
@@ -279,21 +277,7 @@ const ChangeLocation = function(props) {
           </select>
         </div>
 
-        <div className="form-group">
-          <label htmlFor="row2"><FormattedMessage id="queue-row-short"/></label>
-          <select name="row" defaultValue={props.user.previousRow}>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-            <option value="5">5</option>
-            <option value="6">6</option>
-            <option value="7">7</option>
-            <option value="8">8</option>
-            <option value="9">9</option>
-            <option value="10">10</option>
-          </select>
-        </div>
+        <input type="hidden" name="row" value="1"></input>
 
         <div className="form-group">
           <button className="add btn btn-primary btn-xs" onClick={handleChangeClick}><FormattedMessage id="queue-move"/></button>
@@ -428,6 +412,7 @@ class Queue_ extends React.Component {
       <CurrentPosition position={this.state.user.position}/>
       <NoSessions position={this.state.user.position} locations={this.state.locations}/>
       <EnterQueue
+        intl={this.props.intl}
         csrf={this.props.view.csrf}
         handleSessionSelectionChange={this.handleSessionSelectionChange}
         sessions={this.state.sessions}

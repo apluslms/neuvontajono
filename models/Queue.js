@@ -18,6 +18,7 @@ Queue.add({
   row: { type: Types.Number, initial: true, required: true },
   enteredAt: { type: Types.Datetime, initial: true, required: true, 'default': Date.now },
   language: { type: Types.Text },
+  callURL: { type: Types.Text }
 });
 
 // **********************************************************************************************
@@ -38,10 +39,9 @@ Queue.schema.static('getUsersInQueue', function(course, session, callback) {
         { location: { $in: session.getItemAsList('location') } }
       ]
     };
-    Queue.model.find(query).sort('enteredAt').populate('user', 'name').exec(function(err, users) {
+    Queue.model.find(query).sort('enteredAt').populate('user', 'name email').exec(function(err, users) {
 
       if (users) {
-
         // Transform the timestamp into a formatted string
         users = users.map(function(item) {
           const JSONItem = item.toJSON();
@@ -78,7 +78,7 @@ Queue.schema.static('getQueueLength', function(course, session, callback) {
 
 // **********************************************************************************************
 
-Queue.schema.static('addToQueue', function(course, session, user, location, row, language, callback) {
+Queue.schema.static('addToQueue', function(course, session, user, location, row, language, callURL, callback) {
 
   user.previousRow = row;
   user.previousLocation = location;
@@ -87,7 +87,7 @@ Queue.schema.static('addToQueue', function(course, session, user, location, row,
   }
   user.save();
 
-  Queue.model.findOrCreate({ course: course._id, user: user._id }, { session: session._id, location: location, row: row, language: language },
+  Queue.model.findOrCreate({ course: course._id, user: user._id }, { session: session._id, location: location, row: row, language: language, callURL: callURL },
     function(err, result, created) {
 
       const sockets = function(session, location) {

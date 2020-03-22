@@ -390,9 +390,8 @@ class ManageQueueProjector_ extends React.Component {
           <div id="next">
             <FormattedMessage id="manage-projector-next-in-queue"/>
             <div>
-              <span id="name"></span>{' '}
-              (<span id="location"></span><FormattedMessage id="manage-projector-row"/>{' '}
-              <span id="row"></span>)</div>
+              <span id="name"></span>
+            </div>
           </div>
           <div id="help">
             <FormattedMessage id="queue-lead"/>

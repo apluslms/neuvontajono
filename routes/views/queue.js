@@ -30,7 +30,11 @@ exports = module.exports = function(req, res) {
 
         if (session && session.isOpen()) {
 
-          Queue.model.addToQueue(locals.course, session, locals.user, req.body.location, req.body.row, req.body.language,
+          if (req.body.call_url && (req.body.call_url.indexOf('https://') !== 0 && req.body.call_url.indexOf('http://') !== 0)) {
+            req.body.call_url = '';
+          }
+
+          Queue.model.addToQueue(locals.course, session, locals.user, req.body.location, req.body.row, req.body.language, req.body.call_url,
             function(err) {
 
               SessionStats.model.saveQueueLength(locals.course, session);

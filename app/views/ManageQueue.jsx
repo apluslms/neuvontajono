@@ -69,7 +69,7 @@ const UserRow = function(props) {
         return;
       }
     }
-
+    props.setLastConnectionInfo(props.user.callURL || props.user.user.email);
     clickHandler(event, props.user._id, props, null, 'manage-remove-queue-failed');
 
   };
@@ -80,12 +80,10 @@ const UserRow = function(props) {
     }}/></td>
     <td>{`${props.user.user.name.first} ${props.user.user.name.last}`}</td>
     <td><Time value={props.user.enteredAt}/></td>
-    <td><FormattedMessage
-      id="manage-user-row-template"
-      values={{
-      location: props.user.location,
-      row: props.user.row
+    <td><FormattedMessage id="manage-user-row-template" values={{
+      location: props.user.location
     }}/></td>
+    <td className={'connection-col'}>{props.user.callURL ? <a href={props.user.callURL}>{props.user.callURL}</a> : props.user.user.email}</td>
     {props.showLanguage && <td>{props.user.language}</td>}
     <td>
       <button onClick={handleClick} className={cName}>
@@ -140,6 +138,7 @@ const UsersInQueue = function(props) {
             <th><FormattedMessage id='manage-th-name'/></th>
             <th><FormattedMessage id='manage-th-entered-at'/></th>
             <th><FormattedMessage id='manage-th-location'/></th>
+            <th><FormattedMessage id='manage-th-connection'/></th>
             {showLanguage && <th><FormattedMessage id='select-th-language'/></th>}
             <th></th>
           </tr>
@@ -151,6 +150,7 @@ const UsersInQueue = function(props) {
                 clearAlertMessages={props.clearAlertMessages}
                 addAlertMessage={props.addAlertMessage}
                 updateQueueData={props.updateQueueData}
+                setLastConnectionInfo={props.setLastConnectionInfo}
                 key={user._id}
                 user={user}
                 position={index + 1}
@@ -194,12 +194,14 @@ class ManageQueue_ extends React.Component {
     this.state = {
       queueData: this.props.view.queueData,
       notificationPermission: false,
-      nofificationsEnabled: false
+      nofificationsEnabled: false,
+      lastRemovedConnection: null
     };
 
     this.updateQueueData = this.updateQueueData.bind(this);
     this.disableNotifications = this.disableNotifications.bind(this);
     this.enableNotifications = this.enableNotifications.bind(this);
+    this.setLastConnectionInfo = this.setLastConnectionInfo.bind(this);
 
   }
 
@@ -273,6 +275,12 @@ class ManageQueue_ extends React.Component {
 
   // **********************************************************************************************
 
+  setLastConnectionInfo(info) {
+    this.setState({lastRemovedConnection: info});
+  }
+
+  // **********************************************************************************************
+
   updateQueueData(data) {
 
     if (this.state.notificationsEnabled && this.state.queueData.users.length === 0 && data.users.length > 0) {
@@ -280,9 +288,7 @@ class ManageQueue_ extends React.Component {
         body: this.props.intl.formatMessage({
           id: 'notification-joined-queue'
         }, {
-          name: data.users[0].user.name.first,
-          row: data.users[0].row,
-          location: data.users[0].location
+          name: data.users[0].user.name.first
         })
       };
       const notification = new Notification(this.props.intl.formatMessage({id: 'title'}), options);
@@ -321,6 +327,13 @@ class ManageQueue_ extends React.Component {
           }}/>
       </p>
 
+      {
+        this.state.lastRemovedConnection && <p>
+            <FormattedMessage id={'manage-last-connection'}/>{' '}
+            {this.state.lastRemovedConnection.indexOf('http') === 0 ? <a href={this.state.lastRemovedConnection}>{this.state.lastRemovedConnection}</a> : this.state.lastRemovedConnection}
+          </p>
+      }
+
       <UsersInQueue
         users={this.state.queueData.users}
         csrf={this.props.view.csrf}
@@ -328,6 +341,7 @@ class ManageQueue_ extends React.Component {
         addAlertMessage={this.props.addAlertMessage}
         clearAlertMessages={this.props.clearAlertMessages}
         updateQueueData={this.updateQueueData}
+        setLastConnectionInfo={this.setLastConnectionInfo}
         intl={this.props.intl}/>
 
       <ClearQueue intl={this.props.intl} csrf={this.props.view.csrf} length={this.state.queueData.users.length}/>
