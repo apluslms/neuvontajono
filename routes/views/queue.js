@@ -1,6 +1,7 @@
 'use strict';
 
 const keystone = require('keystone');
+const punycodeUrl = require('punycode-url');
 
 exports = module.exports = function(req, res) {
 
@@ -30,9 +31,13 @@ exports = module.exports = function(req, res) {
 
         if (session && session.isOpen()) {
 
+          req.body.call_url = req.body.call_url || '';
+
           if (req.body.call_url && (req.body.call_url.indexOf('https://') !== 0 && req.body.call_url.indexOf('http://') !== 0)) {
             req.body.call_url = '';
           }
+
+          req.body.call_url = punycodeUrl.toASCII(req.body.call_url.trim());
 
           Queue.model.addToQueue(locals.course, session, locals.user, req.body.location, req.body.row, req.body.language, req.body.call_url,
             function(err) {
