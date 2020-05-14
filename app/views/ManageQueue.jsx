@@ -83,7 +83,7 @@ const UserRow = function(props) {
     <td><FormattedMessage id="manage-user-row-template" values={{
       location: props.user.location
     }}/></td>
-    <td className={'connection-col'}>{props.user.callURL ? <a href={props.user.callURL}>{props.user.callURL}</a> : props.user.user.email}</td>
+    <td className={'connection-col'}>{props.user.callURL ? <a href={props.user.callURL} target="_blank">{props.user.callURL}</a> : props.user.user.email}</td>
     {props.showLanguage && <td>{props.user.language}</td>}
     <td>
       <button onClick={handleClick} className={cName}>
@@ -330,7 +330,7 @@ class ManageQueue_ extends React.Component {
       {
         this.state.lastRemovedConnection && <p>
             <FormattedMessage id={'manage-last-connection'}/>{' '}
-            {this.state.lastRemovedConnection.indexOf('http') === 0 ? <a href={this.state.lastRemovedConnection}>{this.state.lastRemovedConnection}</a> : this.state.lastRemovedConnection}
+            {this.state.lastRemovedConnection.indexOf('http') === 0 ? <a href={this.state.lastRemovedConnection} target="_blank">{this.state.lastRemovedConnection}</a> : this.state.lastRemovedConnection}
           </p>
       }
 
